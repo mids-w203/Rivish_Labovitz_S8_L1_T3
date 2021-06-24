@@ -1,0 +1,7 @@
+Current Dataset Release: March 24, 2021 version
+April 22, 2021
+In the processing of the 2020 Time Series post-election data, a potential issue has been detected involving the variables V202498x – V202504. 
+For that reason, most of the variables from this submodule (IDENT) were coded to -2 with our intent being to research the issue and include 
+those variables in the full release of the 2020 Time Series data. However, it was pointed out that the variable V202504 (How important is being 
+American to your identity?) was not included in that set of recodes and contains valid data. The data, somewhat predictably, look off. We are 
+in the process of trying to fully resolve the issues with all of the variables from this submodule and will re-release them as soon as possible.
