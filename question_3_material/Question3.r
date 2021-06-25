@@ -24,8 +24,9 @@ as_factor(enes.stata)
 
 #---------------------------------------------------------------------------------
 # Now lets use real (meaningful) labels
+# https://www.datanovia.com/en/lessons/rename-data-frame-columns-in-r/
 #---------------------------------------------------------------------------------
-# Probably should combing stuff below with purge of columns we do not need
+# TODO Probably should combing stuff below with purge of columns we do not need
 #colnames(enes.stata)
 
 # Question 1
@@ -33,7 +34,7 @@ as_factor(enes.stata)
 #PRE: SUMMARY: RESPONDENT AGE
 names(enes.stata)[names(enes.stata) == "V201507x"] <- "Pre_Summary_Resp_Age"
 #PRE: SUMMARY: PARTY ID
-names(enes.stata)[names(enes.stata) == "V201231x"] <- "Pre_Summary_Party_ID" #PRE: SUMMARY: PARTY ID
+names(enes.stata)[names(enes.stata) == "V201231x"] <- "Pre_Summary_Party_ID" 
     
 #Question 2
 #-------------------------
@@ -47,7 +48,7 @@ names(enes.stata)[names(enes.stata) == "V202120e"] <- "Post_Difficulty_Arriving"
 #Question 3
 #-------------------------
 #POST: HOW MUCH DO PEOPLE NEED HELP FROM EXPERTS TO UNDERSTAND SCIENCE
-names(enes.stata)[names(enes.stata) == " V202309"] <- "Post_Science_Experts"
+names(enes.stata)[names(enes.stata) == "V202309"] <- "Post_Science_Experts"
 #POST: HOW IMPORTANT SHOULD SCIENCE BE FOR DECISIONS ABOUT COVID-19
 names(enes.stata)[names(enes.stata) == "V202310"] <- "Post_Science_COVID_Important"
 #POST: GSS: APPROVE OR DISAPPROVE R’S GOVERNOR HANDLING OF COVID-19
@@ -60,3 +61,35 @@ names(enes.stata)[names(enes.stata) == "V202606x"] <- "Post_Governor_COVID_Appro
 # Check column names
 colnames(enes.stata)
 
+#---------------------------------------------------------------------------------
+# Examine our data
+#---------------------------------------------------------------------------------
+enes.stata$Pre_Summary_Resp_Age # Couple of negative ages
+length(enes.stata$Pre_Summary_Resp_Age) #8280
+
+enes.stata$Pre_Summary_Party_ID #Looks good
+length(enes.stata$Pre_Summary_Party_ID) #8280
+
+enes.stata$Post_Registration_Difficulty #Looks good
+length(enes.stata$Post_Registration_Difficulty) #8280
+
+enes.stata$Post_Absentee_Ballot_Difficulty #Looks good
+length(enes.stata$Post_Absentee_Ballot_Difficulty) #8280
+
+enes.stata$Post_Difficulty_Arriving #Looks good
+length(enes.stata$Post_Difficulty_Arriving) #8280
+
+enes.stata$Post_Science_Experts #Looks good
+length(enes.stata$Post_Science_Experts) #8280
+
+enes.stata$Post_Science_COVID_Important #Looks good
+length(enes.stata$Post_Science_COVID_Important) #8280
+
+enes.stata$Post_Governor_COVID_Approval #Looks good
+length(enes.stata$Post_Governor_COVID_Approval) #8280
+
+enes.stata$Post_Governor_COVID_Approval_Strength #Looks good
+length(enes.stata$Post_Governor_COVID_Approval_Strength) #8280
+
+enes.stata$Post_Governor_COVID_Approval_Summary #Looks good
+length(enes.stata$Post_Governor_COVID_Approval_Summary) #8280
