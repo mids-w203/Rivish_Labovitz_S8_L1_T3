@@ -64,7 +64,7 @@ colnames(enes.stata)
 #---------------------------------------------------------------------------------
 # Examine our data
 #---------------------------------------------------------------------------------
-enes.stata$Pre_Summary_Resp_Age # Couple of negative ages
+enes.stata$Pre_Summary_Resp_Age # Couple of negative ages (-9 = refused)
 length(enes.stata$Pre_Summary_Resp_Age) #8280
 
 enes.stata$Pre_Summary_Party_ID #Looks good
