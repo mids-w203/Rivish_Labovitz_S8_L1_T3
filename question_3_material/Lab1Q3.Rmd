@@ -1,0 +1,210 @@
+---
+title: 'Lab 1: Relating Importance of Science to Governor Approval Ratings :'
+author: "Ria Mahajan, Shane Kramer, Viswanathan Thiagarajan"
+date: "6/27/2021"
+output: 
+  pdf_document:
+    toc: yes
+  bookdown::pdf_document2:
+    toc: yes
+---
+<!-- #################################################################### 
+<!--  QUESTION3:Are people who believe that science is is important for making  
+<!--            government decisions about COVID-19 more likely to disapprove of  
+<!--            the way their governor is handling the pandemic? 
+<!-- #################################################################### 
+<!--  Notes: 
+<!--    Intro: 
+<!--      - Why is the question important? 
+<!--      - What is the dataset is about and why it was collected? 
+<!--      - What is a voter? Democrat? Republican? Define 
+<!--      - What features and variables are we going to use and why we chose those? 
+<!--      - How these feature will allow to answer these questions? 
+<!--      - Establish concept to operation. 
+<!--    Exploratory Data Analysis: 
+<!--      - Give a statement of what you are taking off the table/chart? -->
+<!--      - Use histograms but not stacked -->
+<!--      - Use colors like Red vs Blue for Republican and Dems. -->
+<!--      - Use box plots where applicable.  -->
+<!--      - Do not use a QQ Norm plot for ordinal data -->
+<!--      - No code dumps in the report (have echo = FALSE for plots) -->
+<!--    Hypothesis: -->
+<!--      - Statistical significance -->
+<!--        -	There is evidence or no evidence at present for null hypothesis -->
+<!--      - Practical significance -->
+<!--        -	It is sample size free. Whether it’s useful in a practical scenario.  -->
+<!--        -	If not statistically significant then no practical significance is  -->
+<!--            required -->
+<!--        -	If statistically significant, practical is required -->
+<!--  -->
+<!--  From OH: -->
+<!--    Define people that believe science is important -->
+<!--    Response variable – Approve or Disapprove the governor (Assign 0 - Approve  -->
+<!--        or 1 - Disapprove). Exclude people who have no response or neutral. -->
+<!--    Clearly articulate all of your selections. -->
+<!--    Compute p value. Ho: P value = 0.5 (p value at which proportion of people  -->
+<!--        who disapprove governor is same as proportion of people do not  -->
+<!--        disapprove) -->
+<!--    You could run a fairly simple binomial exact test. -->
+<!--    Viswanathan notes - Practical significance can it be Common Language Size  -->
+<!--        effect (CLES) with {0,1} data? -->
+<!--        CLES = (data in favor – data against)/total data >0.5 to get practical  -->
+<!--        significance -->
+<!-- #################################################################### -->
+
+\clearpage
+
+```{r load packages, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(haven)
+library(tidyverse)
+library(labelled)
+
+theme_set(theme_bw())
+
+options(tinytex.verbose = TRUE)
+```
+
+```{r load and clean data, echo=FALSE, warning=TRUE, message=FALSE}
+enes.stata <- read_dta(file = "../ANES_data_material/anes_timeseries_2020_stata_20210324.dta")
+```
+
+```{r clean data, echo = FALSE}
+Q3enes.stata <- enes.stata %>%
+  select(V201145,  V202310) %>%
+  rename(
+    Pre_Governor_COVID_Approval = V201145, #PRE: APPROVE OR DISAPPROVE R’S GOVERNOR HANDLING COVID-19
+    Post_Science_COVID_Important = V202310, #POST: HOW IMPORTANT SHOULD SCIENCE BE FOR DECISIONS ABOUT COVID-19
+  )
+
+# Characterizing dataframes
+# -------------------------------------------------------
+#colnames(Q3enes.stata)
+#glimpse(Q3enes.stata)
+#typeof(Q3enes.stata)
+Q3enes.stata$Pre_Governor_COVID_Approval # 
+length(Q3enes.stata$Pre_Governor_COVID_Approval) #8280
+Q3enes.stata$Post_Science_COVID_Important # 
+length(Q3enes.stata$Post_Science_COVID_Important) #8280
+
+# Filter out values <0
+# -------------------------------------------------------
+# Pre_Governor_COVID_Approval - Filter out -9(Refused), -8(Don't know) values 
+# Post_Science_COVID_Important - Filter out -9(Refused), -7(No post-election data), 
+#   -6(No post-election interview), -5(Interview breakoff) 
+Q3enes.stata <- filter(Q3enes.stata,
+                        Pre_Governor_COVID_Approval > 0, # Filters out 52 values (now 8228)
+                        Post_Science_COVID_Important > 0 # Filters out 883 values (now 7345)
+                       )
+
+Q3enes.stata$Pre_Governor_COVID_Approval # 
+length(Q3enes.stata$Pre_Governor_COVID_Approval) #7345
+Q3enes.stata$Post_Science_COVID_Important # 
+length(Q3enes.stata$Post_Science_COVID_Important) #7345
+
+```
+
+# Are people who believe that science is is important for making government decisions about COVID-19 more likely to disapprove of the way their governor is handling the pandemic?
+
+## Importance and Context
+One would be hard pressed to think of anything that has recently impacted as many lives as COVID-19. As of this analysis, an estimated 3.92 million people had died from the virus, and 181 million have been infected worldwide. Even those who had no direct contact with the virus were drastically effected and it caused worldwide economic and logistic concerns. Despite all of this, there is still a substantial U.S. population who do not see COVID-19 as a serious threat, and who feel that regulations like masking wearing and social distancing are an infringement on their rights. A Monmouth University poll of 800 American adults was conducted via telephone calls from April 8-12, 2021. Their results indicate that 1 in 5 Americans have no intention of getting vaccinated and the difference in percentage between Republican and Democrat subjects who do not anticipate getting the COVID-19 Vaccine was substantial (43% to 5% respectively). A good deal of that populations reluctance can be attribute to a lack of faith in the Center for Disease Control and often even the Scientific Process.
+
+Much of the COVID-19 regulation in the United States was handled at the state and local levels. As such, governors need to understand their constituents and they need to be able to effectively explain and communicate any COVID-19 related regulations or decisions. Doing so is extremely valuable and has value well beyond the typical political game and re-election aspirations. Understanding the relationship between the approval rating of governors and the measure of how a population values science can be used by governors to better relate the importance of certain pandemic counter-measures to their constituents if an when we are faced with such a threat again.
+
+## Description of Data
+This study utilized the ANES 2020 Time Series Study dataset. The study combined internet, phone, and video conferences/calls to survey eligible U.S. voters before (5,441 surveyed) and after (2,670 surveyed) the election on a variety of topics, including "the Coronavirus pandemic, election integrity, corruption, impeachment, immigration and Democratic norms". We opted to use the .dta formatted Stata data.
+
+In order to adequately answer our question we needed variables that would help us understand the how much the respondents approve or disapprove of their governors, as well as a variable to quantify how much a given respondent feels science should drive government decisions. We referenced the ANES userguide+codebook (anes_timesseries_userguidecodebook.pdf) to determine which questions and resulting answers were applicable to our study. 
+
+The two questions that we chose to utilize were:
+
+* V201145 - a pre-election survey question that evaluated the respondent's governor approval rating.
+  + Values:
+    - -9. Refused
+    - -8. Don’t know
+    - 1. Approve
+    - 2. Disapprove
+
+* V202310 - a post-election survey question that evaluated how a respondent rated the importance of science in making decisions about COVID-19. 
+  + Values:
+    - -9. Refused
+    - -7. No post-election data, deleted due to incomplete interview
+    - -6. No post-election interview
+    - -5. Interview breakoff (sufficient partial IW)
+    - 1. Not at all important
+    - 2. A little important
+    - 3. Moderately important
+    - 4. Very important
+    - 5. Extremely important
+
+
+<!-- Explain how your research question is operationalized, including whether the variables you create are appropriate to study the concepts in question. --> 
+<!-- What are some basic features of the data distribution? --> 
+<!-- What changes do you make to the data and why? --> 
+
+```{r, echo = FALSE}
+
+```
+
+```{r summary-table, echo = FALSE}
+Q3enes.stata.labeled <- data.frame(Q3enes.stata)
+table(Q3enes.stata.labeled$Pre_Governor_COVID_Approval, 
+      Q3enes.stata.labeled$Post_Science_COVID_Important, 
+      dnn = c("Approve of Governor (1=Yes)","Importance of Science (1=least)"))
+```
+
+```{r plots, message = FALSE, echo = FALSE, fig.cap='Approval Rates for Respondents Governor', fig.pos='!b'}
+Pre_Governor_COVID_Approval_labels <- c("Approve", "Disapprove")
+ggplot(Q3enes.stata, aes(x=factor(Pre_Governor_COVID_Approval), y=((..count..)/sum(..count..)),fill=factor(Pre_Governor_COVID_Approval))) +
+  ggtitle("Approve or Disapprove of Respondents Governor Handling of COVID-19?") +
+  geom_bar(show.legend = FALSE, width=0.5) +
+  scale_fill_manual(values = c("1" = "#33B233", "2" = "#CC3333")) + 
+  scale_y_continuous(labels=scales::percent) +
+  scale_x_discrete(breaks = 1:2, labels = Pre_Governor_COVID_Approval_labels) +
+  ylab("Percentage of Respondents") +
+  xlab("")
+```
+
+```{r plots, message = FALSE, echo = FALSE, fig.cap='How Important Should Science Be for Decisions About COVID-19?', fig.pos='!b'}
+Post_Science_COVID_Important_labels <- c("Not at all Important", "A Little Important", "Moderately Important", "Very Important", "Extremely Important")
+ggplot(Q3enes.stata, aes(x=factor(Post_Science_COVID_Important), y=((..count..)/sum(..count..)))) +
+  ggtitle("How Important Should Science Be for Decisions About COVID-19?") +
+  geom_bar(fill = "#00888888") +
+  scale_y_continuous(labels=scales::percent) +
+  scale_x_discrete(breaks = 1:5, labels = Post_Science_COVID_Important_labels)+
+  ylab("Percentage of Respondents") +
+  xlab("")
+```
+
+
+```{r plots, message = FALSE, echo = FALSE, fig.cap='Voter Emotions and Feelings', fig.pos='!b'}
+ggplot(Q3enes.stata, aes(x=factor(Post_Science_COVID_Important),y=((..count..)/sum(..count..)), 
+                         fill=factor(Pre_Governor_COVID_Approval)), axis.text=element_text(size=4)) +
+  ggtitle("Approval of Respondents Governor Grouped by Importance of Science") +
+  geom_bar(position = 'dodge') +
+  guides(fill=guide_legend(title=NULL)) +
+  scale_fill_manual(values = c("1" = "#33B233", "2" = "#CC3333"), labels = c("Approve", "Disapprove")) + 
+  scale_x_discrete(breaks = 1:5, labels = Post_Science_COVID_Important_labels)+
+  scale_y_continuous(labels=scales::percent) +
+  theme(legend.position = c(0.1, 0.9)) +
+  ylab("Percentage of Respondents") +
+  xlab("How Important Should Science Be for Decisions About COVID-19?")
+```
+
+## Hypothesis
+
+## Most appropriate test 
+
+```{r binomial test, echo=FALSE} 
+
+```
+
+```{r, echo=FALSE}
+
+```
+
+
+## Test, results and interpretation
+<!-- What are the results of your test? --> 
+<!-- What do the results of this test mean? What is the practical significance? --> 
