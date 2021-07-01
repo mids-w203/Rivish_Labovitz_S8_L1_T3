@@ -26,7 +26,7 @@ theme_set(theme_bw())
 knitr.duplicate.label = "allow"
 ```
 
-# Are Democratic voters older of younger than Republican Voters in 2020?
+# Are Democratic voters older or younger than Republican Voters in 2020?
 
 
 ## Importance and Context
@@ -40,7 +40,7 @@ Also, younger people when it comes to voting care about getting a job, education
 loan forgiveness, and the environment as compared to older voters who care more 
 about health policies, retirement, social security, and other benefits. Because 
 of this, we want to analyze if in the 2020 Election the Democratic voters were 
-older or younger than Republican Voters and what party they were affiliated with. 
+older or younger than Republican Voters.  
 
 To help us answer this question, we used the dataset anes_timeseries_2020_stata_
 20210324. The data set includes different attributes (per column) and includes 
@@ -49,7 +49,7 @@ question we looked at variables V201507x (which was the Respondents Age) and
 V201018 (which was the Party of Registration). We created a new subset called 
 “Registration” to extract data relevant for the voter age analysis. 
 
-```{r load data, echo=TRUE, warning=FALSE, message=FALSE}
+```{r load data, echo=FALSE, warning=FALSE, message=FALSE}
 
 enes.stata <- read_dta(file="anes_timeseries_2020_stata_20210324.dta")
 names(enes.stata)[names(enes.stata) == "V201507x"] <- "Pre_Summary_Resp_Age"
@@ -123,15 +123,19 @@ Republican_Age <- filter(Registration,Registration_Party == "Republican")
 Democrat_Age <- filter(Registration,Registration_Party == "Democrat")
 ```
 
-
-```{r setting up for the test1, echo=TRUE, warning=TRUE, message=FALSE}
+Summary of Republican Voters
+```{r setting up for the test1, echo=FALSE, warning=TRUE, message=FALSE}
 #Summary of Republican Voters (sd= 16.664, mean = 55.89, sample size= 1,255 )
 summary(Republican_Age$Pre_Summary_Resp_Age)
-
+```
+Summary of Democratic Voters
+```{r setting up for the test2, echo=FALSE, warning=TRUE, message=FALSE}
 #Summary of Democrat Voters (sd= 17.205, mean = 52.66,sample size= 1,792  )
 summary(Democrat_Age$Pre_Summary_Resp_Age)
 ```
-
+```{r sample audit table, echo=FALSE, out.width="75%", fig.cap="Sample Size Audit."}
+knitr::include_graphics("Sample.jpg")
+```
 ## Most appropriate test 
 Our analysis aims to determine if Democratic voters are older or younger than 
 Republican Voters. Our group decided to use a t test since we have two groups, 
@@ -143,11 +147,11 @@ distribution. Based on that, for our Null Hypothesis, we define it as H{0}: mean
 age for democrat voters = mean age for republicans voters. Alternate Hypotheses 
 is defined as H{1}: mean age for democrat voters !=mean age for republicans voters.
 
-Additionally, since the response variable, Age, is ordinal data, a parametric
+Additionally, since the response variable, Age, is metric data, a parametric
 test is appropriate as we will be comparing the mean ages of the respective parties. 
 We plan to use the Cohen’s d Test in the analysis to see how effect size plays a role.
 
-```{r tests, echo=TRUE}
+```{r tests, echo=FALSE}
 #T test for Democrat Age vs Republican Age 
 t.test(Democrat_Age$Pre_Summary_Resp_Age,Republican_Age$Pre_Summary_Resp_Age)
 
@@ -174,5 +178,4 @@ if the relationship is statistically significant. Despite the classification of
 the effect size, future governors and policy makers can leverage this 
 information and can conclude that Democratic Voters are younger than Republican 
 Voters according to our data. 
-
 
