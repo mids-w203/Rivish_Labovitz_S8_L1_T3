@@ -1,0 +1,178 @@
+---
+title: 'Lab 1: Democratic Voter Age vs Republican Voter Age :'
+author: "Ria Mahajan, Shane Kramer, Viswanathan Thiagarajan"
+date: "07/01/2021"
+output: 
+  pdf_document:
+    toc: yes
+  bookdown::pdf_document2:
+    toc: yes
+
+---
+\clearpage
+
+```{r load packages and set options, include=FALSE}
+library(tidyverse)
+library(haven)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+install.packages("effsize")
+library(effsize)
+theme_set(theme_bw())
+```
+
+```{r GlobalOptions, echo=FALSE, warning=TRUE, message=FALSE}
+knitr.duplicate.label = "allow"
+```
+
+# Are Democratic voters older of younger than Republican Voters in 2020?
+
+
+## Importance and Context
+
+They say elections are decided by those who show up to vote. For question 1, 
+we are trying to identify the ages of Democrat and Republican voters. In general,
+there is a link between age and voting behavior. As people age, they are more 
+likely to be at the top of their earnings, so they are more likely to favor 
+traditional conservative policies such as lower taxation on higher earners. 
+Also, younger people when it comes to voting care about getting a job, education
+loan forgiveness, and the environment as compared to older voters who care more 
+about health policies, retirement, social security, and other benefits. Because 
+of this, we want to analyze if in the 2020 Election the Democratic voters were 
+older or younger than Republican Voters and what party they were affiliated with. 
+
+To help us answer this question, we used the dataset anes_timeseries_2020_stata_
+20210324. The data set includes different attributes (per column) and includes 
+values for age, voter registration status, and party affiliation. For this 
+question we looked at variables V201507x (which was the Respondents Age) and 
+V201018 (which was the Party of Registration). We created a new subset called 
+“Registration” to extract data relevant for the voter age analysis. 
+
+```{r load data, echo=TRUE, warning=FALSE, message=FALSE}
+
+enes.stata <- read_dta(file="anes_timeseries_2020_stata_20210324.dta")
+names(enes.stata)[names(enes.stata) == "V201507x"] <- "Pre_Summary_Resp_Age"
+names(enes.stata)[names(enes.stata) == "V201018"] <- "Pre_Party_of_Registration"
+
+```
+
+```{r filter data out, echo=FALSE, message=FALSE, warning=FALSE, results = "hide"}
+Registration <- subset(enes.stata, select = c("Pre_Summary_Resp_Age", "Pre_Party_of_Registration"))
+
+as_factor(Registration)
+
+Registration <- Registration %>% mutate(Registration_Party = 
+                                                  case_when(Pre_Party_of_Registration < 0 ~ "Not Needed",
+                                                            Pre_Party_of_Registration == 1 ~ "Democrat",
+                                                            Pre_Party_of_Registration == 2 ~ "Republican",
+                                                            Pre_Party_of_Registration > 3 ~ "Not Needed")
+                                                
+)
+
+Registration$Pre_Party_of_Registration <- as.numeric(as.character(Registration$Pre_Party_of_Registration))
+Registration <- filter(Registration, Pre_Summary_Resp_Age >18)
+Registration <- filter(Registration, (Registration_Party == "Democrat" | Registration_Party == "Republican"))
+```
+
+
+## Description of Data
+A Democrat is a person
+registered with the Democratic party, and this is a person who believes in the 
+political or social equality of all people. A Republican is a person registered 
+with the Republican party, and this is a person who favors or supports a 
+republican form of government. For this analysis, we utilized the ANES 2020 Time Series Study dataset. In order
+to adequately answer our question, we needed data that would show us age of the 
+voters and what registered party they are affiliated with. 
+
+Looking at Age (Variable V201507x), we saw that the range of voters was between 
+-9 to 80. For both parties we noticed the max age was 80 (as anyone over the age
+of 80 was listed as 80 too). To clean up “Age”, we decided to filter out any 
+voters younger than 18, because they can not vote, and any voters that had -9 
+because this represents voters who did not disclose their birth date. The second
+variable we chose to keep is “Party of Registration” (Variable V201018) as it 
+told us what political party each voter is registered with. Since we are wanting
+to look at voters who are registered with the Democratic Party and Republican 
+Party, we can filter out all other values.  
+
+```{r histogram, echo=FALSE, warning=TRUE, message=FALSE}
+
+Registration_histogram <- Registration %>%
+  ggplot() + aes(x = Pre_Summary_Resp_Age, fill = Registration_Party) +
+  geom_histogram(position ='dodge', bins=16) +
+  scale_fill_manual(values=c("blue", "red")) +
+  labs(title    ='Voter Age: Democrat vs Republican',
+       subtitle ='Are Democratic voters older or younger than Republican voters',
+       x        ='Voter Age',
+       y        ='Count of Observations',
+       fill     ='Political Party Affiliation') +
+  theme(legend.position = "right")
+Registration_histogram
+```
+
+Originally we started out with 8,280 entries but after filtering out voters 
+younger than 18/voters whos birthday did not register and only looking at the political party affiliation of 
+“Democrat” or “Republican”, we are left with 3,067 entries too analyze and 
+compare. 
+
+
+```{r setting up for the test, echo=FALSE, warning=FALSE, message=FALSE}
+#Summary of Republican Voters (sd= 16.664, mean = 55.89, sample size= 1,255 )
+Republican_Age <- filter(Registration,Registration_Party == "Republican")
+#Summary of Democrat Voters (sd= 17.205, mean = 52.66,sample size= 1,792  )
+Democrat_Age <- filter(Registration,Registration_Party == "Democrat")
+```
+
+
+```{r setting up for the test1, echo=TRUE, warning=TRUE, message=FALSE}
+#Summary of Republican Voters (sd= 16.664, mean = 55.89, sample size= 1,255 )
+summary(Republican_Age$Pre_Summary_Resp_Age)
+
+#Summary of Democrat Voters (sd= 17.205, mean = 52.66,sample size= 1,792  )
+summary(Democrat_Age$Pre_Summary_Resp_Age)
+```
+
+## Most appropriate test 
+Our analysis aims to determine if Democratic voters are older or younger than 
+Republican Voters. Our group decided to use a t test since we have two groups, 
+Democrats and Republicans. The reason we went with this test is because we have 
+Age data which is a numeric metric scale and the data is independent and 
+identically distributed. We can assume this is IID data because there is a large
+sample size for both the parties and we can see that it is close to a normal 
+distribution. Based on that, for our Null Hypothesis, we define it as H{0}: mean
+age for democrat voters = mean age for republicans voters. Alternate Hypotheses 
+is defined as H{1}: mean age for democrat voters !=mean age for republicans voters.
+
+Additionally, since the response variable, Age, is ordinal data, a parametric
+test is appropriate as we will be comparing the mean ages of the respective parties. 
+We plan to use the Cohen’s d Test in the analysis to see how effect size plays a role.
+
+```{r tests, echo=TRUE}
+#T test for Democrat Age vs Republican Age 
+t.test(Democrat_Age$Pre_Summary_Resp_Age,Republican_Age$Pre_Summary_Resp_Age)
+
+#Cohen's D test Democrat Age vs Republican Age (Practical Significance)
+cohen.d(Republican_Age$Pre_Summary_Resp_Age,Democrat_Age$Pre_Summary_Resp_Age)
+
+```
+
+## Test, results and interpretation
+The question we are trying to answer is, Are Democratic voters older or younger 
+than Republican Voters in 2020? When conducting a Welch Two Sample t-test we see
+that the p-value is equal to 2.007e-07. This indicates a high statistical 
+significance, and we can therefore reject the null hypothesis in which the mean 
+age for voters in the democratic and republican party is equal at a 95% 
+confidence interval. We see that the mean for Democratic voters is 52.6 and the 
+mean for Republican voters is 55.89 which means that the average republican 
+voter is about 3.5 years older than the democrat average voter’s age. 
+
+To find the practical significance, our group also conducted a Cohen’s D Test at
+a 95% confidence interval and got an effect size of approximately .1901. Since
+difference between two groups (Democrat Voters and Republican Voters) is less 
+than 0.2, the effect size is small and therefore difference is negligible, even 
+if the relationship is statistically significant. Despite the classification of 
+the effect size, future governors and policy makers can leverage this 
+information and can conclude that Democratic Voters are younger than Republican 
+Voters according to our data. 
+
+
