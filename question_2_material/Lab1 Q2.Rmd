@@ -83,11 +83,16 @@ knitr::include_graphics("Difficulty.JPG")
 The difficulty scale column has Ten different unique values, as shown in Figure 1. Since we are interested only in the valid values for the difficulty, we subset the sample by considering only the values between 1 and 5. This filter resulted in 2709 samples.
 
 ```{r final sample image, echo=FALSE, out.width="45%", fig.cap="Final sample for analysis."}
-knitr::include_graphics("Final.JPG")
+#knitr::include_graphics("Final.JPG")
 ```
 
-Our final dataset for analysis has 2709 samples with 1587 Democratic and 1122 Republican voters as seen in figure 2. We plot a side-by-side bar chart of the count of Democratic and Republican voters on the y-axis and the difficulty on an ordinal scale on the x-axis. The plot shows a similar distribution of Democratic and Republican voters with a higher number of Democratic voters responding that they faced difficulty in voting when compared to the Republican voters in the sample.
+Our final dataset for analysis has 2709 samples as seen in figure 2. There are 1587 Democratic and 1122 Republican voters. We plot a side-by-side bar chart of the count of Democratic and Republican voters on the y-axis and the difficulty on an ordinal scale on the x-axis. The plot shows a similar distribution of Democratic and Republican voters with a higher number of Democratic voters responding that they faced difficulty in voting when compared to the Republican voters in the sample.
 
+Below is the sample size audit table for the analysis.
+
+```{r sample audit table, echo=FALSE, out.width="75%", fig.cap="Sample Size Audit."}
+knitr::include_graphics("Sample.JPG")
+```
 
 ```{r make summary table, echo = FALSE} 
 enes.stata <- enes.stata %>%
@@ -148,9 +153,3 @@ The proportion of Republicans who faced difficulty (scale value > 1) within the 
 Even in this case, the difference in proportions is approximately 0.037. 
 
 From the current analysis, we cannot say that the difficulty did discourage voters or if the respondents failed to cast a vote due to the difficulty. We have less or no information from the sample to determine if the difficulties impacted casting votes and hence the election results. As the difference is so close, we cannot tell if there is enough practical significance in the results that it might have influenced the election results or caused other repercussions. Further analysis with additional data is required to answer these questions.
-
-Below is the sample size audit table for the analysis.
-
-```{r sample audit table, echo=FALSE, out.width="75%", fig.cap="Sample Size Audit."}
-knitr::include_graphics("Sample.JPG")
-```
